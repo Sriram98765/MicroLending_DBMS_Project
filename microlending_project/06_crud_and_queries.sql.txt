@@ -1,0 +1,106 @@
+-- 06_crud_and_queries.sql
+USE microlending;
+
+-- Q1: List all customers with their active loan details
+SELECT 
+    c.first_name, 
+    c.last_name, 
+    l.loan_id, 
+    l.principal_amount, 
+    l.outstanding_balance 
+FROM Customers c
+JOIN Loans l ON c.customer_id = l.customer_id
+WHERE l.status = 'ACTIVE';
+
+-- Q2: Find total amount disbursed by month (Revenue Reporting)
+SELECT 
+    DATE_FORMAT(disbursement_date, '%Y-%m') AS month_year,
+    SUM(amount) AS total_disbursed
+FROM Disbursements
+GROUP BY DATE_FORMAT(disbursement_date, '%Y-%m');
+
+-- Q3: Identify loans with MISSING collateral (Risk Management)
+-- A loan is risky if it has no entries in the Collateral table
+SELECT 
+    l.loan_id, 
+    c.last_name, 
+    l.principal_amount
+FROM Loans l
+JOIN Customers c ON l.customer_id = c.customer_id
+LEFT JOIN Collateral col ON l.loan_id = col.loan_id
+WHERE col.collateral_id IS NULL;
+
+-- Q4: Aging Buckets (How overdue are the schedules?)
+-- Calculates days overdue for unpaid schedules
+SELECT 
+    s.schedule_id,
+    l.loan_id,
+    DATEDIFF(CURRENT_DATE, s.due_date) AS days_overdue,
+    CASE 
+        WHEN DATEDIFF(CURRENT_DATE, s.due_date) BETWEEN 1 AND 30 THEN '1-30 Days'
+        WHEN DATEDIFF(CURRENT_DATE, s.due_date) BETWEEN 31 AND 60 THEN '31-60 Days'
+        WHEN DATEDIFF(CURRENT_DATE, s.due_date) > 60 THEN '60+ Days'
+        ELSE 'Current'
+    END AS aging_bucket
+FROM Schedule s
+JOIN Loans l ON s.loan_id = l.loan_id
+WHERE s.is_paid = FALSE;
+
+-- Q5: Repayment History with Running Total (Window Function)
+-- Shows how the balance decreases over time for Loan #1
+SELECT 
+    repayment_id,
+    payment_date,
+    amount_paid,
+    SUM(amount_paid) OVER (PARTITION BY loan_id ORDER BY payment_date) as total_repaid_so_far
+FROM Repayments
+WHERE loan_id = 1;
+
+-- Q6: Top Customers by Outstanding Balance
+SELECT 
+    c.first_name, 
+    c.last_name, 
+    SUM(l.outstanding_balance) as total_debt
+FROM Customers c
+JOIN Loans l ON c.customer_id = l.customer_id
+GROUP BY c.customer_id
+ORDER BY total_debt DESC
+LIMIT 10;
+
+-- Q7: Average Approval Time (Application Date to Loan Start Date)
+SELECT 
+    AVG(DATEDIFF(l.start_date, la.application_date)) as avg_days_to_approve
+FROM Loans l
+JOIN LoanApplications la ON l.application_id = la.application_id;
+
+-- Q8: Create a View for Portfolio KPIs (Snapshot of business health)
+CREATE OR REPLACE VIEW vw_portfolio_kpis AS
+SELECT 
+    COUNT(l.loan_id) as total_active_loans,
+    SUM(l.outstanding_balance) as total_risk_exposure,
+    AVG(l.interest_rate) as avg_interest_rate
+FROM Loans l
+WHERE l.status = 'ACTIVE';
+
+-- Q9: Select from the KPI View
+SELECT * FROM vw_portfolio_kpis;
+
+-- Q10: Update Operation (Record a Penalty)
+UPDATE Schedule 
+SET penalty_amount = 50.00 
+WHERE schedule_id = 3 AND is_paid = FALSE;
+
+-- Q11: Delete Operation (Remove a canceled application)
+-- First we insert a dummy one to delete
+INSERT INTO LoanApplications (customer_id, amount_requested, term_months, status) 
+VALUES (1, 100.00, 1, 'PENDING');
+
+DELETE FROM LoanApplications 
+WHERE amount_requested = 100.00 AND status = 'PENDING';
+
+-- Q12: Calculate Payment Efficiency (Percentage of Schedules Paid)
+SELECT 
+    loan_id,
+    (SUM(CASE WHEN is_paid = TRUE THEN 1 ELSE 0 END) / COUNT(*)) * 100 as percent_paid_on_time
+FROM Schedule
+GROUP BY loan_id;

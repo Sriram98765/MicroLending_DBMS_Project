@@ -1,0 +1,1 @@
+"I successfully backed up the database using MySQL Workbench Data Export tool. The export file backup.sql is included in this folder."

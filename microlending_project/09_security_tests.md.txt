@@ -1,0 +1,19 @@
+# Security & Roles Report
+
+## Roles Created
+1. **ADMIN:** Full access to all tables.
+2. **AUDITOR:** Read-Only access (`SELECT`) on all tables.
+
+## Test Evidence
+
+### Test 1: Auditor Read Access
+**User:** `auditor_user`
+**Action:** `SELECT * FROM Loans;`
+**Result:** **Success**. Data returned.
+
+### Test 2: Auditor Write Access (Negative Test)
+**User:** `auditor_user`
+**Action:** `DELETE FROM Loans;`
+**Result:** **Failed** (As expected).
+**Error Message:**
+> Error Code: 1142. DELETE command denied to user 'auditor_user'@'localhost' for table 'Loans'.

@@ -1,0 +1,17 @@
+# Micro-Lending & Repayment System - Requirements
+
+## 1. Narrative
+The Micro-Lending System connects small-scale borrowers with lenders. The system serves three users: **Customers (Borrowers)**, **Loan Officers (Employees)**, and **Admins**. 
+When a customer applies, a `LoanApplication` is created. If approved, it becomes a `Loan`, funds are sent via `Disbursement`, and a `Schedule` for repayment is generated. The system tracks `Repayments`, `Collateral`, and logs all changes in an `AuditLog`.
+
+## 2. Business Rules
+1.  **Identity:** Customers must provide valid ID and DOB.
+2.  **One Active App:** A Customer can only have one 'PENDING' application at a time.
+3.  **Approvals:** A Loan is only created if the Application status is 'APPROVED'.
+4.  **Disbursement:** Cannot exceed the approved Loan amount.
+5.  **Repayment:** Cannot exceed the remaining loan balance.
+6.  **Payment Order:** Payments cover Penalties first, then Interest, then Principal.
+7.  **Late Fees:** Added if payment is not made by `due_date`.
+8.  **Collateral:** Secured loans require collateral value >= 120% of principal.
+9.  **Security:** Only ADMINS can change interest rates.
+10. **Audit:** All status changes must be logged.

@@ -1,0 +1,119 @@
+-- 03_create_tables.sql
+-- MySQL Version
+
+-- 1. Roles (Lookup table for permissions)
+CREATE TABLE Roles (
+    role_id INT AUTO_INCREMENT PRIMARY KEY,
+    role_name VARCHAR(50) UNIQUE NOT NULL,
+    description TEXT
+);
+
+-- 2. Users (System admins, loan officers)
+CREATE TABLE Users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    role_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (role_id) REFERENCES Roles(role_id)
+);
+
+-- 3. Customers (The Borrowers)
+CREATE TABLE Customers (
+    customer_id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(20),
+    gov_id VARCHAR(50) UNIQUE NOT NULL,
+    dob DATE NOT NULL,
+    address TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 4. Loan Applications
+CREATE TABLE LoanApplications (
+    application_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    amount_requested DECIMAL(15, 2) NOT NULL,
+    term_months INT NOT NULL,
+    purpose TEXT,
+    status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
+    application_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    reviewed_by INT,
+    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id) ON DELETE CASCADE,
+    FOREIGN KEY (reviewed_by) REFERENCES Users(user_id)
+);
+
+-- 5. Loans (The core entity)
+CREATE TABLE Loans (
+    loan_id INT AUTO_INCREMENT PRIMARY KEY,
+    application_id INT UNIQUE,
+    customer_id INT,
+    principal_amount DECIMAL(15, 2) NOT NULL,
+    interest_rate DECIMAL(5, 2) NOT NULL, -- Annual rate %
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    status ENUM('ACTIVE', 'PAID_OFF', 'DEFAULTED') DEFAULT 'ACTIVE',
+    outstanding_balance DECIMAL(15, 2) NOT NULL,
+    FOREIGN KEY (application_id) REFERENCES LoanApplications(application_id),
+    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
+);
+
+-- 6. Schedule (Expected payments)
+CREATE TABLE Schedule (
+    schedule_id INT AUTO_INCREMENT PRIMARY KEY,
+    loan_id INT,
+    due_date DATE NOT NULL,
+    installment_amount DECIMAL(15, 2) NOT NULL,
+    principal_component DECIMAL(15, 2),
+    interest_component DECIMAL(15, 2),
+    is_paid BOOLEAN DEFAULT FALSE,
+    penalty_amount DECIMAL(15, 2) DEFAULT 0.00,
+    FOREIGN KEY (loan_id) REFERENCES Loans(loan_id) ON DELETE CASCADE
+);
+
+-- 7. Repayments (Actual money received)
+CREATE TABLE Repayments (
+    repayment_id INT AUTO_INCREMENT PRIMARY KEY,
+    loan_id INT,
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    amount_paid DECIMAL(15, 2) NOT NULL,
+    payment_method VARCHAR(50),
+    notes TEXT,
+    FOREIGN KEY (loan_id) REFERENCES Loans(loan_id)
+);
+
+-- 8. Collateral (Security for the loan)
+CREATE TABLE Collateral (
+    collateral_id INT AUTO_INCREMENT PRIMARY KEY,
+    loan_id INT,
+    description TEXT NOT NULL,
+    estimated_value DECIMAL(15, 2) NOT NULL,
+    location TEXT,
+    FOREIGN KEY (loan_id) REFERENCES Loans(loan_id)
+);
+
+-- 9. Disbursements (Money going OUT to customer)
+CREATE TABLE Disbursements (
+    disbursement_id INT AUTO_INCREMENT PRIMARY KEY,
+    loan_id INT,
+    amount DECIMAL(15, 2) NOT NULL,
+    disbursement_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    method VARCHAR(50),
+    FOREIGN KEY (loan_id) REFERENCES Loans(loan_id)
+);
+
+-- 10. Audit Log (Security requirement)
+CREATE TABLE AuditLog (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    table_name VARCHAR(50),
+    record_id INT,
+    action VARCHAR(10), -- INSERT, UPDATE, DELETE
+    changed_by INT,
+    change_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    old_value TEXT,
+    new_value TEXT,
+    FOREIGN KEY (changed_by) REFERENCES Users(user_id)
+);

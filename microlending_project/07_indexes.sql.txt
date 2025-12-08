@@ -1,0 +1,22 @@
+-- 07_indexes.sql
+USE microlending;
+
+-- 1. Check performance BEFORE Indexing
+-- The "EXPLAIN" keyword tells us HOW the DB searches.
+-- Look for "Full Table Scan" or "type: ALL" in the output (this is slow).
+EXPLAIN SELECT * FROM Loans WHERE customer_id = 2;
+
+-- 2. Create an Index on customer_id
+-- This creates a shortcut for finding loans by customer.
+CREATE INDEX idx_loans_customer ON Loans(customer_id);
+
+-- 3. Check performance AFTER Indexing
+-- Run EXPLAIN again. You should see "type: ref" or "key: idx_loans_customer".
+-- This means it used the index! (Much faster).
+EXPLAIN SELECT * FROM Loans WHERE customer_id = 2;
+
+-- 4. Composite Index (Optimization for multi-column search)
+-- Helps when searching by status AND due date together.
+CREATE INDEX idx_schedule_status_date ON Schedule(is_paid, due_date);
+
+EXPLAIN SELECT * FROM Schedule WHERE is_paid = FALSE AND due_date < '2023-05-01';

@@ -1,0 +1,20 @@
+# Query Optimization Report
+
+## Objective
+To analyze and improve the performance of slow queries using Indexes.
+
+## Test Case: Searching Loans by Customer
+**Query:** `SELECT * FROM Loans WHERE customer_id = 2;`
+
+### 1. Before Indexing
+**Observation:** The database performed a **Full Table Scan** (Type: `ALL`). It had to check every single row in the Loans table to find the match.
+**Evidence:**
+> [PASTE YOUR SCREENSHOT OF THE 'EXPLAIN' OUTPUT HERE]
+
+### 2. Action Taken
+Executed: `CREATE INDEX idx_loans_customer ON Loans(customer_id);`
+
+### 3. After Indexing
+**Observation:** The database used the index (Type: `REF`). The query cost decreased, and row scanning was limited to exact matches.
+**Evidence:**
+> [PASTE YOUR SCREENSHOT OF THE NEW 'EXPLAIN' OUTPUT HERE]

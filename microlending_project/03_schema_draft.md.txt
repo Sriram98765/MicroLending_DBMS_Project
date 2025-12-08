@@ -1,0 +1,39 @@
+# Relational Schema Draft
+
+## 1. Customers
+* `customer_id` (INT, PK, Auto-Inc)
+* `first_name`, `last_name` (VARCHAR)
+* `gov_id` (VARCHAR, Unique)
+* `email` (VARCHAR, Unique)
+* `dob` (DATE)
+
+## 2. LoanApplications
+* `application_id` (INT, PK, Auto-Inc)
+* `customer_id` (INT, FK -> Customers)
+* `amount_requested` (DECIMAL)
+* `status` (ENUM: Pending, Approved, Rejected)
+
+## 3. Loans
+* `loan_id` (INT, PK, Auto-Inc)
+* `application_id` (INT, FK -> LoanApplications)
+* `principal_amount` (DECIMAL)
+* `interest_rate` (DECIMAL)
+* `outstanding_balance` (DECIMAL)
+* `status` (ENUM: Active, Paid_Off, Defaulted)
+
+## 4. Schedule
+* `schedule_id` (INT, PK)
+* `loan_id` (INT, FK -> Loans)
+* `due_date` (DATE)
+* `installment_amount` (DECIMAL)
+* `is_paid` (BOOLEAN)
+
+## 5. Repayments
+* `repayment_id` (INT, PK)
+* `loan_id` (INT, FK -> Loans)
+* `amount_paid` (DECIMAL)
+* `payment_date` (TIMESTAMP)
+
+## 6. Users & Roles
+* `Roles`: `role_id` (PK), `role_name`
+* `Users`: `user_id` (PK), `username`, `password_hash`, `role_id` (FK)

@@ -1,0 +1,16 @@
+-- 09_security.sql
+-- Create a read-only user for the "Auditor" role
+
+-- 1. Create the user 'auditor_user' with password 'securepass123'
+-- Note: If this fails, you might already have this user.
+CREATE USER IF NOT EXISTS 'auditor_user'@'localhost' IDENTIFIED BY 'securepass123';
+
+-- 2. Grant READ-ONLY permission (SELECT) on the microlending database
+GRANT SELECT ON microlending.* TO 'auditor_user'@'localhost';
+
+-- 3. Apply the privileges
+FLUSH PRIVILEGES;
+
+-- 4. Test (Optional comment)
+-- If you were to log in as 'auditor_user', 
+-- DELETE FROM Loans; would fail with "Access denied".

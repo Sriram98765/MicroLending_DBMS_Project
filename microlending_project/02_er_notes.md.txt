@@ -1,0 +1,16 @@
+# ER Diagram Notes
+
+## Entities
+* **Strong Entities:** Customer, User, Role, AuditLog. (These exist independently).
+* **Weak Entities:** Loan, Schedule, Repayment, Collateral. (These cannot exist without a Loan or Customer).
+
+## Relationships & Cardinality
+1.  **Customer - LoanApplication (1:N):** A customer can submit multiple applications, but an application belongs to only one customer.
+2.  **LoanApplication - Loan (1:1):** An application, once approved, generates exactly one active loan record.
+3.  **Loan - Schedule (1:N):** A single loan is broken down into multiple installment records (e.g., 12 monthly payments).
+4.  **Loan - Repayment (1:N):** A borrower might make multiple partial payments or one full payment; a loan tracks all money received.
+5.  **User - Role (N:1):** Multiple employees can share the same role (e.g., "Loan Officer"), but a user has only one primary role definition.
+
+## Assumptions
+* We treat `LoanApplication` as the starting point. If rejected, it stays as an application. If approved, data flows into the `Loan` table.
+* `AuditLog` is a standalone entity that references other tables by ID but doesn't have a strict foreign key constraint to allow for deleted records to still have logs.

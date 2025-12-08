@@ -1,0 +1,30 @@
+-- 08_transactions.sql
+USE microlending;
+
+-- SCENARIO: A customer tries to make a payment, but the system crashes halfway.
+
+-- 1. Start the Transaction
+START TRANSACTION;
+
+-- 2. Take money from the customer (Simulated by recording the Repayment)
+INSERT INTO Repayments (loan_id, amount_paid, payment_method) 
+VALUES (2, 500.00, 'Wire Transfer');
+
+-- 3. Update the Loan Balance
+UPDATE Loans SET outstanding_balance = outstanding_balance - 500.00 
+WHERE loan_id = 2;
+
+-- 4. OOPS! Something went wrong (Simulation)
+-- Imagine the power went out here. We don't want to save partial data.
+-- Run this command to UNDO steps 2 and 3.
+ROLLBACK;
+
+-- 5. Verify the Rollback
+-- This select should NOT show the 500.00 payment we just tried to add.
+SELECT * FROM Repayments WHERE loan_id = 2 ORDER BY repayment_id DESC;
+
+-- 6. Now, do it correctly (COMMIT)
+START TRANSACTION;
+INSERT INTO Repayments (loan_id, amount_paid, payment_method) VALUES (2, 500.00, 'Wire Transfer');
+UPDATE Loans SET outstanding_balance = outstanding_balance - 500.00 WHERE loan_id = 2;
+COMMIT; -- This saves it permanently.

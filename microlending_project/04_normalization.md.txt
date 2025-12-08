@@ -1,0 +1,27 @@
+# Normalization Report
+
+## Functional Dependencies (FDs)
+* **Customers:** `customer_id` → `first_name`, `last_name`, `email`, `gov_id`.
+* **Loans:** `loan_id` → `customer_id`, `principal`, `interest_rate`, `start_date`.
+* **Schedule:** `schedule_id` → `loan_id`, `due_date`, `amount`.
+
+## Normalization Steps
+
+### 1NF (First Normal Form)
+* **Rule:** Atomic values, no repeating groups.
+* **Status:** Achieved. We do not store multiple phone numbers in one cell. Addresses are stored as single strings. All columns contain single values.
+
+### 2NF (Second Normal Form)
+* **Rule:** No partial dependencies (attributes must depend on the *whole* primary key).
+* **Status:** Achieved. All tables use a single-column Primary Key (Surrogate IDs like `loan_id`). There are no composite primary keys where a column depends on only half the key.
+
+### 3NF (Third Normal Form)
+* **Rule:** No transitive dependencies (Non-Key → Non-Key).
+* **Status:** Achieved.
+    * In `Loans`, we include `customer_id` but NOT `customer_name`. To get the name, we join with the `Customers` table.
+    * In `Schedule`, we include `loan_id` but NOT `loan_interest_rate`.
+    * All non-key attributes are fully dependent on the Primary Key.
+
+## Denormalization Note
+We intentionally denormalized **Loans.outstanding_balance**.
+* **Reason:** Calculating the balance requires summing all repayments every time a user views their dashboard. Storing the current balance improves read performance significantly.

@@ -1,0 +1,22 @@
+# Transactions & Concurrency Demo
+
+## Scenario
+A "Race Condition" simulation where a system crash occurs during a payment transaction.
+
+## Workflow
+1. **Start Transaction.**
+2. **Insert Repayment:** Record a payment of $500.
+3. **Update Balance:** Deduct $500 from the loan balance.
+4. **Simulate Error:** Execute `ROLLBACK`.
+
+## Results
+
+### Test 1: Rollback
+**Command:** `ROLLBACK;`
+**Outcome:** The Repayment record was **not** created. The Loan balance remained unchanged. This proves Atomicity (The 'A' in ACID).
+**Log Output:**
+> [PASTE THE OUTPUT TEXT FROM MYSQL WORKBENCH HERE]
+
+### Test 2: Commit
+**Command:** `COMMIT;`
+**Outcome:** The data was permanently saved.

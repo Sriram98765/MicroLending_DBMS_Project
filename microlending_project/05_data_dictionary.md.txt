@@ -1,0 +1,14 @@
+# Data Dictionary
+
+| Table Name | Column Name | Data Type | Description |
+| :--- | :--- | :--- | :--- |
+| **Customers** | customer_id | INT | Primary Key, Auto-incremented. |
+| | gov_id | VARCHAR(50) | Unique National ID (e.g., SSN, Passport). |
+| | dob | DATE | Date of Birth for age verification. |
+| **Loans** | principal_amount | DECIMAL(15,2) | The original amount borrowed. |
+| | interest_rate | DECIMAL(5,2) | Annual Interest Rate (e.g., 10.5 for 10.5%). |
+| | status | ENUM | 'ACTIVE', 'PAID_OFF', 'DEFAULTED'. |
+| **Schedule** | due_date | DATE | The deadline for this specific installment. |
+| | penalty_amount | DECIMAL(15,2) | Late fee added if payment is missed. |
+| **Repayments** | amount_paid | DECIMAL(15,2) | The actual amount received from customer. |
+| | payment_method | VARCHAR(50) | e.g., 'Bank Transfer', 'Cash', 'Cheque'. |

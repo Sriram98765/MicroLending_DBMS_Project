@@ -1,0 +1,63 @@
+-- 05_seed_data.sql
+-- Insert sample data in the correct dependency order
+
+USE microlending;
+
+-- 1. Insert Roles
+INSERT INTO Roles (role_name, description) VALUES 
+('ADMIN', 'Full system access'),
+('LOAN_OFFICER', 'Process applications and repayments'),
+('AUDITOR', 'Read-only access for compliance');
+
+-- 2. Insert Users (Password hash is simulated)
+INSERT INTO Users (username, password_hash, email, role_id) VALUES 
+('admin_alice', 'hash123', 'alice@micro.com', 1),
+('officer_bob', 'hash456', 'bob@micro.com', 2),
+('officer_charlie', 'hash789', 'charlie@micro.com', 2);
+
+-- 3. Insert Customers
+INSERT INTO Customers (first_name, last_name, email, phone, gov_id, dob, address) VALUES 
+('John', 'Doe', 'john@gmail.com', '555-0101', 'ID-1001', '1985-05-15', '123 Main St'),
+('Jane', 'Smith', 'jane@yahoo.com', '555-0102', 'ID-1002', '1990-08-20', '456 Oak Ave'),
+('Rahul', 'Kumar', 'rahul@outlook.com', '555-0103', 'ID-1003', '1988-12-10', '789 Pine Rd'),
+('Emily', 'Davis', 'emily@gmail.com', '555-0104', 'ID-1004', '1995-02-28', '321 Elm St');
+
+-- 4. Insert Loan Applications
+INSERT INTO LoanApplications (customer_id, amount_requested, term_months, purpose, status, reviewed_by) VALUES 
+(1, 5000.00, 12, 'Home Renovation', 'APPROVED', 2), -- John (Approved)
+(2, 10000.00, 24, 'Business Expansion', 'APPROVED', 2), -- Jane (Approved)
+(3, 2000.00, 6, 'Medical Emergency', 'REJECTED', 3), -- Rahul (Rejected)
+(4, 15000.00, 36, 'Education', 'PENDING', NULL); -- Emily (Pending)
+
+-- 5. Insert Loans (Only for Approved Apps)
+-- Loan 1 (John)
+INSERT INTO Loans (application_id, customer_id, principal_amount, interest_rate, start_date, end_date, status, outstanding_balance) VALUES 
+(1, 1, 5000.00, 10.5, '2023-01-01', '2024-01-01', 'ACTIVE', 4200.00);
+
+-- Loan 2 (Jane)
+INSERT INTO Loans (application_id, customer_id, principal_amount, interest_rate, start_date, end_date, status, outstanding_balance) VALUES 
+(2, 2, 10000.00, 12.0, '2023-06-01', '2025-06-01', 'ACTIVE', 9500.00);
+
+-- 6. Insert Collateral (For Loan 2)
+INSERT INTO Collateral (loan_id, description, estimated_value, location) VALUES 
+(2, 'Shop Machinery', 15000.00, 'Warehouse A, Unit 4');
+
+-- 7. Insert Disbursements
+INSERT INTO Disbursements (loan_id, amount, method, disbursement_date) VALUES 
+(1, 5000.00, 'Bank Transfer', '2023-01-02 10:00:00'),
+(2, 10000.00, 'Check', '2023-06-02 14:00:00');
+
+-- 8. Insert Schedule (Sample installments for Loan 1)
+INSERT INTO Schedule (loan_id, due_date, installment_amount, principal_component, interest_component, is_paid) VALUES 
+(1, '2023-02-01', 440.00, 400.00, 40.00, TRUE), -- Paid
+(1, '2023-03-01', 440.00, 403.00, 37.00, TRUE), -- Paid
+(1, '2023-04-01', 440.00, 406.00, 34.00, FALSE); -- Unpaid/Overdue
+
+-- 9. Insert Repayments (Payments made by John)
+INSERT INTO Repayments (loan_id, amount_paid, payment_method, payment_date) VALUES 
+(1, 440.00, 'Online', '2023-01-30 09:00:00'),
+(1, 440.00, 'Online', '2023-02-28 11:30:00');
+
+-- 10. Insert Audit Log (Simulated)
+INSERT INTO AuditLog (table_name, record_id, action, changed_by, old_value, new_value) VALUES 
+('LoanApplications', 3, 'UPDATE', 3, 'PENDING', 'REJECTED');
