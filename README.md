@@ -18,7 +18,7 @@ This project serves as a comprehensive database system for a micro-lending insti
 - **[02 ER Diagram Image](microlending_project/02_er_diagram.png)** - (Click to view the diagram).
 
 ### 🔹 Phase 2: Schema & Normalization
-- **[03 Schema Draft](microlending_project/03_schema_draft.md)** - Table list with Primary/Foreign keys.
+- **[03 Schema Draft](https://github.com/Sriram98765/MicroLending_DBMS_Project/blob/main/microlending_project/03_schema_draft.md.txt)** - Table list with Primary/Foreign keys.
 - **[03 SQL: Create Tables](microlending_project/03_create_tables.sql)** - DDL script to set up the database.
 - **[04 Normalization Report](microlending_project/04_normalization.md)** - 1NF, 2NF, 3NF justification.
 
