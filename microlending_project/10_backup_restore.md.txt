@@ -1,1 +1,15 @@
-"I successfully backed up the database using MySQL Workbench Data Export tool. The export file backup.sql is included in this folder."
+# Backup and Recovery Strategy
+
+## Backup Details
+* **Method:** Logical Backup.
+* **Tool:** MySQL Workbench (Data Export).
+* **Format:** Self-contained `.sql` file including structure and data.
+
+## Restoration Test
+1. **Simulated Disaster:** Dropped table `Repayments`.
+2. **Restoration:** Imported `backup.sql` via MySQL Workbench (Data Import).
+3. **Verification:** `SELECT COUNT(*) FROM Repayments` returned all original rows.
+
+## Proof
+**Backup File Location:** `./backup.sql`
+> [PASTE A SCREENSHOT OF YOUR BACKUP.SQL FILE OR THE EXPORT SUCCESS SCREEN HERE]
